@@ -1,0 +1,622 @@
+/* =========================================
+   SiDaun - Global Styles
+   Tailwind CSS v4 + Mesh Gradient Glassmorphism
+   ========================================= */
+
+/* ⚠️ @import WAJIB di paling atas — sebelum statement apapun */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+/* Import Tailwind CSS v4 */
+@import "tailwindcss";
+
+/* ---- CSS Custom Properties (Design Tokens) ---- */
+@theme {
+  --color-primary-50: #f0fdf4;
+  --color-primary-100: #dcfce7;
+  --color-primary-200: #bbf7d0;
+  --color-primary-300: #86efac;
+  --color-primary-400: #4ade80;
+  --color-primary-500: #22c55e;
+  --color-primary-600: #16a34a;
+  --color-primary-700: #15803d;
+  --color-primary-800: #166534;
+  --color-primary-900: #14532d;
+
+  /* Neon Emerald */
+  --color-neon-400: #34d399;
+  --color-neon-500: #10b981;
+  --color-neon-600: #059669;
+
+  --color-warning-400: #fb923c;
+  --color-warning-500: #f97316;
+  --color-warning-600: #ea580c;
+
+  --color-danger-400: #f87171;
+  --color-danger-500: #ef4444;
+  --color-danger-600: #dc2626;
+
+  --font-sans: 'Inter', system-ui, sans-serif;
+}
+
+/* ---- Keyframe Animations ---- */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.88);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse-green {
+
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5);
+  }
+
+  50% {
+    box-shadow: 0 0 0 14px rgba(16, 185, 129, 0);
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+
+  33% {
+    transform: translateY(-18px) rotate(2deg);
+  }
+
+  66% {
+    transform: translateY(-8px) rotate(-1deg);
+  }
+}
+
+@keyframes float-slow {
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-24px);
+  }
+}
+
+@keyframes glow-pulse {
+
+  0%,
+  100% {
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.3), 0 0 40px rgba(16, 185, 129, 0.1);
+  }
+
+  50% {
+    box-shadow: 0 0 30px rgba(16, 185, 129, 0.6), 0 0 60px rgba(16, 185, 129, 0.2);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% center;
+  }
+
+  100% {
+    background-position: 200% center;
+  }
+}
+
+@keyframes blob {
+
+  0%,
+  100% {
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  }
+
+  50% {
+    border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
+  }
+}
+
+@keyframes mesh-float {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(30px, -50px) scale(1.1);
+  }
+  66% {
+    transform: translate(-20px, 40px) scale(0.9);
+  }
+}
+
+/* ---- Base Reset & Global ---- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background-color: #ffffff;
+  color: #0f172a;
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-overflow-scrolling: touch;
+  /* Momentum scrolling untuk iOS/Android */
+  overscroll-behavior-y: none;
+  /* Mencegah efek pantulan berlebih */
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---- Scrollbar Styling ---- */
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #34d399;
+  border-radius: 999px;
+}
+
+/* ---- Animation Utility Classes ---- */
+.animate-fade-in {
+  animation: fade-in 0.4s ease-out both;
+}
+
+.animate-slide-up {
+  animation: slide-up 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-slide-down {
+  animation: slide-down 0.35s ease-out both;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.animate-pulse-green {
+  animation: pulse-green 2.2s ease-in-out infinite;
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-float-slow {
+  animation: float-slow 8s ease-in-out infinite;
+}
+
+.animate-glow {
+  animation: glow-pulse 2.5s ease-in-out infinite;
+}
+
+.animate-blob {
+  animation: blob 8s ease-in-out infinite;
+}
+
+.animate-mesh {
+  animation: mesh-float 15s ease-in-out infinite;
+}
+
+/* ---- Glass Morphism Card ---- */
+.glass-card {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow:
+    0 4px 24px rgba(16, 185, 129, 0.08),
+    0 1px 4px rgba(0, 0, 0, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.03);
+}
+
+/* ---- Optimized Performance Container (Fix Janky Scrolling) ---- */
+.container-hijau-pekat {
+  background-color: rgba(240, 253, 244, 0.95);
+  /* Warna solid bawaan Tailwind Emerald 50 (ringan) */
+  border: 1.5px solid rgba(16, 185, 129, 0.25);
+  border-radius: 16px;
+  /* Radius lebih sederhana dari ekstrem */
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.08);
+  /* Tunda efek shadow tebal */
+
+  /* Akselerasi Perangkat Keras GPU */
+  transform: translateZ(0);
+  will-change: transform;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* ---- Glass Navigation ---- */
+/* ══════════════════════════════════════════
+   NAVBAR STYLES (Desktop Glass vs Mobile Solid)
+   ══════════════════════════════════════════ */
+
+/* Desktop Top Navbar */
+.glass-nav {
+  background: #ffffff;
+  /* Solid white on mobile */
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+@media (min-width: 768px) {
+  .glass-nav {
+    background: rgba(255, 255, 255, 0.4) !important;
+    backdrop-filter: blur(20px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.4) !important;
+  }
+}
+
+/* Mobile Bottom Navbar (Android style) */
+.glass-nav-bottom {
+  background: #ffffff;
+  /* Solid white on mobile */
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
+}
+
+@media (min-width: 768px) {
+  .glass-nav-bottom {
+    background: rgba(255, 255, 255, 0.45) !important;
+    backdrop-filter: blur(20px) saturate(190%) !important;
+    -webkit-backdrop-filter: blur(20px) saturate(190%) !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.3) !important;
+  }
+}
+
+/* ---- Green Gradient Button ---- */
+.btn-primary {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  font-weight: 600;
+  border-radius: 14px;
+  padding: 14px 28px;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  border: none;
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(16, 185, 129, 0.55);
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.4);
+}
+
+.btn-primary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* ---- Neon CTA Button ---- */
+.btn-neon {
+  position: relative;
+  background: linear-gradient(135deg, #10b981 0%, #34d399 50%, #059669 100%);
+  background-size: 200% auto;
+  color: white;
+  font-weight: 700;
+  border-radius: 16px;
+  padding: 16px 36px;
+  cursor: pointer;
+  border: none;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow:
+    0 6px 24px rgba(16, 185, 129, 0.45),
+    0 0 0 1px rgba(52, 211, 153, 0.3);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-size: 16px;
+  letter-spacing: -0.01em;
+}
+
+.btn-neon::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, transparent 60%);
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.btn-neon:hover {
+  transform: translateY(-3px);
+  background-position: right center;
+  box-shadow:
+    0 12px 40px rgba(16, 185, 129, 0.6),
+    0 0 0 2px rgba(52, 211, 153, 0.5),
+    0 0 60px rgba(16, 185, 129, 0.2);
+}
+
+.btn-neon:hover::before {
+  opacity: 1;
+}
+
+.btn-neon:active {
+  transform: translateY(-1px);
+}
+
+/* ---- Hero Gradient Background ---- */
+.hero-gradient {
+  background:
+    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(16, 185, 129, 0.12) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 40% at 80% 50%, rgba(52, 211, 153, 0.08) 0%, transparent 60%),
+    #f8fafc;
+}
+
+/* ---- Neon Border Glow ---- */
+.neon-border {
+  border: 1.5px solid rgba(52, 211, 153, 0.5);
+  box-shadow: 0 0 0 1px rgba(52, 211, 153, 0.15), 0 4px 20px rgba(16, 185, 129, 0.1);
+}
+
+/* ---- Input Field Style ---- */
+.upload-zone {
+  border: 2px dashed rgba(52, 211, 153, 0.5);
+  background: linear-gradient(135deg, rgba(240, 253, 244, 0.8), rgba(209, 250, 229, 0.5));
+  transition: all 0.3s ease;
+}
+
+.upload-zone:hover {
+  border-color: rgba(16, 185, 129, 0.7);
+  background: linear-gradient(135deg, rgba(240, 253, 244, 1), rgba(209, 250, 229, 0.8));
+}
+
+/* ────────────────────────────────────────────────────────────────
+   MESH GRADIENT — Global Background (Vercel / Apple style)
+   Kombinasi beberapa radial-gradient yang saling overlap,
+   menciptakan efek cahaya lembut berwarna yang organik.
+   ──────────────────────────────────────────────────────────────── */
+.mesh-gradient-bg {
+  background-color: transparent;
+  min-height: 100vh;
+}
+
+/* ── Hero Landing with Image Reference ── */
+.hero-landing-bg {
+  position: relative;
+  background-image:
+    linear-gradient(rgba(15, 23, 42, 0.45) 0%, rgba(15, 23, 42, 0.7) 100%),
+    url('/karo2.jpg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: scroll;
+  /* Scroll normal di landing hero */
+  color: #ffffff;
+}
+
+
+/* ────────────────────────────────────────────────────────────────
+   KARO THEMED SECTIONS & WATERMARKS
+   Custom backgrounds for landing page sections
+   ──────────────────────────────────────────────────────────────── */
+
+.section-karo-green {
+  position: relative;
+  background: linear-gradient(135deg, #064e3b 0%, #022c22 100%);
+  overflow: hidden;
+}
+
+.section-karo-light-green {
+  position: relative;
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  overflow: hidden;
+}
+
+.watermark-karo {
+  position: absolute;
+  top: 50%;
+  left: 2%;
+  transform: translateY(-50%);
+  width: 450px;
+  height: auto;
+  opacity: 0.1;
+  pointer-events: none;
+  z-index: 0;
+  filter: grayscale(1) brightness(4);
+}
+
+/* Alternate watermark position for better visual balance */
+.section-karo-green .watermark-karo {
+  left: auto;
+  right: 0;
+  transform: translateY(-50%) translateX(15%);
+}
+
+.section-karo-light-green .watermark-karo {
+  opacity: 0.08;
+  filter: grayscale(1) brightness(0.2);
+  /* Darker watermark on light bg */
+}
+
+/* Card styles for different backgrounds */
+.glass-green-card-dark {
+  background: rgba(16, 185, 129, 0.1);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1.2px solid rgba(16, 185, 129, 0.25);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+}
+
+.glass-green-card-light {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1.2px solid rgba(16, 185, 129, 0.2);
+  box-shadow: 0 8px 32px rgba(16, 185, 129, 0.08);
+}
+
+/* ────────────────────────────────────────────────────────────────
+   PREMIUM DARK SECTION & CARDS (Reference: Monografi Hukum style)
+   ──────────────────────────────────────────────────────────────── */
+.section-dark-emerald-1 {
+  background-color: #011f13;
+  /* Deepest Green from Image 1 */
+  color: #ffffff;
+  position: relative;
+}
+
+.section-dark-emerald-2 {
+  background-color: #064e3b;
+  /* Mid Deep Green from Image 2 */
+  color: #ffffff;
+  position: relative;
+}
+
+.section-premium-dark {
+  color: #ffffff;
+  position: relative;
+  overflow: hidden;
+}
+
+.premium-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #ffffff;
+  display: inline-block;
+  border-bottom: 3.5px solid #10b981;
+  /* Emerald underline */
+  padding-bottom: 8px;
+  margin-bottom: 1.5rem;
+  letter-spacing: -0.02em;
+}
+
+.card-premium-dark {
+  background: rgba(6, 78, 59, 0.4);
+  /* Deep emerald overlay */
+  backdrop-filter: blur(10px);
+  border-top: 4px solid #10b981;
+  border-radius: 20px;
+  padding: 2.5rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  border-left: 1px solid rgba(255, 255, 255, 0.05);
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  height: 100%;
+}
+
+.card-premium-dark:hover {
+  transform: translateY(-10px);
+  background: rgba(6, 78, 59, 0.6);
+  box-shadow: 0 20px 40px rgba(16, 185, 129, 0.15);
+}
+
+.btn-premium-emerald {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #ffffff;
+  font-weight: 800;
+  padding: 12px 24px;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  border: none;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+  width: fit-content;
+  margin: 0 auto;
+}
+
+.btn-premium-emerald:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.5);
+  filter: brightness(1.1);
+}
+
+.btn-premium-emerald:active {
+  transform: translateY(0);
+}

@@ -1,0 +1,36 @@
+Bertindaklah sebagai Senior Fullstack Engineer. Saya sedang mengembangkan aplikasi PWA bernama SiDaun, sebuah sistem agritech untuk mendeteksi penyakit daun cabai menggunakan model Machine Learning (CNN/MobileNetV2). 
+
+Tech Stack yang digunakan:
+- Frontend: React / Next.js, Tailwind CSS
+- Backend: Node.js, Express.js
+- Database: MongoDB (menggunakan Mongoose)
+- Local Storage: IndexedDB (gunakan wrapper Dexie.js atau idb)
+- Cloud Storage: Cloudinary (atau AWS S3) untuk upload gambar.
+
+Tujuan:
+Saya ingin membangun fitur "Offline-to-Online Sync" menggunakan pendekatan Hybrid. Aplikasi harus bisa berjalan dan mendeteksi penyakit saat offline, mengompresi gambar, menyimpannya di IndexedDB, lalu melakukan sinkronisasi otomatis ke MongoDB dan Cloudinary saat internet kembali terhubung.
+
+Berikan saya panduan kode lengkap (Frontend dan Backend) dengan spesifikasi berikut:
+
+1. Kebutuhan Frontend (Kompresi & IndexedDB):
+- Buat fungsi untuk mengompresi foto daun (menggunakan `browser-image-compression`) dengan ukuran maksimal 500x500px agar ukurannya di bawah 100KB.
+- Buat skema IndexedDB dengan tabel `syncQueue`.
+- Saat offline, simpan payload deteksi ke `syncQueue`: `{ localId: UUID, imageBlob: Blob, diseaseType: string, confidenceScore: number, scannedAt: Date }`.
+
+2. Kebutuhan Backend & Database (Express & MongoDB):
+- Buat skema Mongoose `Detection` dengan field: `localId` (String, unique), `diseaseType` (String), `confidenceScore` (Number), `imageUrl` (String), `scannedAt` (Date), `syncedAt` (Date).
+- Buat endpoint `POST /api/sync/bulk-detections` di Express.js yang bisa menerima array data.
+- Endpoint ini harus bisa menerima file gambar (base64/buffer), mengunggahnya ke Cloudinary, mendapatkan URL-nya, lalu menyimpan data lengkapnya ke MongoDB.
+- Gunakan metode `upsert` (Update or Insert) berdasarkan `localId` untuk mencegah duplikasi data jika terjadi kegagalan jaringan di tengah proses.
+
+3. Alur Sinkronisasi (Workflow):
+- Buat event listener di Frontend (React) yang mendengarkan event `window.addEventListener('online')`.
+- Saat online, baca semua data dari `syncQueue` IndexedDB.
+- Kirim data ke endpoint Express secara massal (bulk).
+- Jika response dari server sukses (200 OK), hapus data yang berhasil disinkronisasi dari IndexedDB agar memori perangkat tidak penuh.
+
+4. Indikator UI/UX (Tailwind CSS):
+- Buat komponen UI kecil untuk status bar (misal: "Offline Mode" jika tidak ada sinyal).
+- Tampilkan notifikasi antrean (misal: "Ada 3 deteksi belum tersinkronisasi").
+
+Tuliskan implementasi kodenya secara bertahap, mulai dari setup IndexedDB di Frontend, Skema MongoDB, Endpoint Express, hingga fungsi Sinkronisasi di React. Sertakan komentar pada bagian kode yang krusial.
