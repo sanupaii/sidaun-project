@@ -17,6 +17,9 @@ import DeteksiPage from './pages/DeteksiPage'
 import RiwayatPage from './pages/RiwayatPage'
 import EdukasiPage from './pages/EdukasiPage'
 import AboutPage from './pages/AboutPage'
+import LoginPage from './pages/LoginPage'
+import RegisterPage from './pages/RegisterPage'
+import LahanKuPage from './pages/LahanKuPage'
 
 // Components
 import Navbar from './components/Navbar'
@@ -140,6 +143,9 @@ function App() {
             <Route path="/edukasi" element={<EdukasiPage />} />
             <Route path="/edukasi/:diseaseId" element={<EdukasiPage />} />
             <Route path="/about" element={<AboutPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/lahanku" element={<LahanKuPage />} />
           </Routes>
         </main>
 

@@ -197,194 +197,165 @@ function LandingPage() {
         </section>
       </div>
 
-      {/* ── Feature Cards (Kenapa SiDaun) ── */}
-      <section className="section-dark-emerald-1 px-6 py-20 md:py-32 group">
-        <img 
-          src="/icons/karo.png" 
-          alt="Watermark Karo" 
-          className="watermark-karo opacity-[0.03] group-hover:opacity-[0.05] transition-opacity duration-700" 
-        />
+      {/* ── Section 1: Arsitektur Cerdas (The Engine) ── */}
+      <section className="relative px-6 py-24 md:py-40 bg-white overflow-hidden">
+        <div className="absolute inset-0 opacity-[0.03]"
+          style={{ backgroundImage: 'radial-gradient(#10b981 1.5px, transparent 1.5px)', backgroundSize: '32px 32px' }}></div>
+
         <div className="max-w-7xl mx-auto relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 items-start">
-            
-            {/* Left Content */}
-            <div className="lg:col-span-5 flex flex-col items-start text-left">
-              <h2 className="premium-title">
-                Kenapa SiDaun?
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            <div>
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-50 border border-emerald-100 text-emerald-600 text-[10px] font-black uppercase tracking-[0.3em] mb-8 shadow-sm">
+                <Cpu size={14} /> Core Engine Architecture
+              </div>
+              <h2 className="text-4xl md:text-6xl font-black text-slate-900 tracking-tighter mb-8 leading-[0.9] uppercase">
+                Otak Cerdas <br /><span className="text-emerald-600">Dibalik Layar</span>
               </h2>
-              <p className="text-lg md:text-xl text-slate-300 leading-relaxed mb-10 font-medium max-w-lg">
-                Berbagai kumpulan teknologi cerdas dan sistem pakar yang dirancang khusus 
-                untuk membantu meningkatkan produktivitas serta menjaga kesehatan tanaman 
-                cabai Anda di Tanah Karo.
+              <p className="text-slate-600 text-lg font-medium leading-relaxed mb-10 max-w-xl">
+                SiDaun bukan sekadar aplikasi kamera. Di dalamnya terdapat arsitektur Neural Network
+                yang telah dioptimasi khusus untuk mengenali pola mikroskopis pada daun cabai
+                dengan kecepatan pemrosesan kurang dari 150 milidetik.
               </p>
-              <div className="w-full md:w-auto">
-                <button 
-                  onClick={() => navigate('/about')}
-                  className="btn-premium-emerald py-4 px-10 text-lg shadow-emerald-500/20"
-                >
-                  Lihat Selengkapnya
-                </button>
-              </div>
-            </div>
-
-            {/* Right Cards Grid */}
-            <div className="lg:col-span-7">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-                {features.map(({ icon: Icon, title, desc, color }, i) => (
-                  <div
-                    key={title}
-                    className="card-premium-dark animate-fade-in"
-                    style={{ animationDelay: `${0.2 + i * 0.1}s` }}
-                  >
-                    <div className="w-16 h-16 rounded-full flex items-center justify-center mb-6 bg-emerald-500/10 border border-emerald-500/20">
-                      <Icon size={32} color="#10b981" strokeWidth={2.5} />
-                    </div>
-                    <h3 className="text-xl font-black text-white mb-4 tracking-tight uppercase">{title}</h3>
-                    <p className="text-sm text-slate-400 leading-relaxed font-semibold">{desc}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </section>
-
-      {/* ── Disease Preview Section ── */}
-      <section className="section-dark-emerald-2 px-6 py-20 md:py-32 border-t border-white/5">
-        <div className="max-w-7xl mx-auto relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 items-start">
-            
-            {/* Left Content */}
-            <div className="lg:col-span-5 flex flex-col items-start text-left">
-              <h2 className="premium-title">
-                Penyakit Cabai
-              </h2>
-              <p className="text-lg md:text-xl text-slate-300 leading-relaxed mb-10 font-medium max-w-lg">
-                Model AI kami dilatih secara mendalam untuk mengenali berbagai kategori 
-                kondisi daun cabai. Dapatkan diagnosa instan dan langkah penanganan yang tepat.
-              </p>
-              <div className="w-full md:w-auto">
-                <button 
-                  onClick={() => navigate('/edukasi')}
-                  className="btn-premium-emerald py-4 px-10 text-lg shadow-emerald-500/20"
-                >
-                  Buka Edukasi
-                </button>
-              </div>
-            </div>
-
-            {/* Right Cards Grid */}
-            <div className="lg:col-span-7">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-                {[
-                  { nama: 'Daun Bercak', image: '/bercak.png' },
-                  { nama: 'Daun Keriting', image: '/keriting.png' },
-                  { nama: 'Daun Kuning', image: '/kuning.png' },
-                  { nama: 'Daun Sehat', image: '/sehat.png' },
-                ].map(({ nama, image }, i) => (
-                  <Link
-                    key={nama}
-                    to={`/edukasi/${slugify(nama)}`}
-                    className="card-premium-dark group animate-fade-in"
-                    style={{ animationDelay: `${0.3 + i * 0.12}s` }}
-                  >
-                    <div className="mb-6 flex flex-col items-center justify-center relative">
-                      <div className="absolute inset-0 bg-emerald-500/10 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                      <img
-                        src={image}
-                        alt={nama}
-                        className="w-24 h-24 object-contain relative z-10 transition-transform duration-500 group-hover:scale-110"
-                        style={{ filter: `drop-shadow(0 12px 20px rgba(16,185,129,0.2))` }}
-                      />
-                    </div>
-                    <h3 className="text-xl font-black text-white mb-6 uppercase tracking-tight">{nama}</h3>
-                    <button className="btn-premium-emerald w-full py-2.5 text-xs tracking-widest uppercase">Lihat Kategori</button>
-                  </Link>
-                ))}
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </section>
-
-      {/* ── How It Works Section ── */}
-      <section className="section-dark-emerald-1 px-6 pt-16 md:pt-24 pb-24 md:pb-32">
-        <div className="max-w-4xl mx-auto relative z-10">
-          <h2 className="text-2xl md:text-3xl font-bold text-center text-white mb-3 tracking-tight">
-            Cara Kerja Model AI
-          </h2>
-          <p className="text-center text-white/70 font-medium mb-12 text-sm md:text-base">
-            Proses deteksi cerdas yang mudah dan cepat
-          </p>
-
-          <div className="relative">
-            {/* Desktop Connectors (Z-Pattern) */}
-            <div className="hidden md:block absolute inset-0 pointer-events-none opacity-40">
-              {/* Box 1 -> Box 2 (Top Row) */}
-              <div className="absolute top-[25%] left-[50%] -translate-x-1/2">
-                <ArrowRight size={24} className="text-emerald-400" />
-              </div>
-              {/* Box 2 -> Box 3 (Right Side Drop) */}
-              <div className="absolute top-[50%] right-[25%] -translate-y-1/2">
-                <ArrowDown size={24} className="text-emerald-400" />
-              </div>
-              {/* Box 3 -> Box 4 (Bottom Row) */}
-              <div className="absolute top-[75%] left-[50%] -translate-x-1/2">
-                <ArrowRight className="text-emerald-400 rotate-180" size={24} />
-              </div>
-            </div>
-
-            {/* Steps Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-y-16 md:gap-x-24">
-              {howItWorks.map((step, i) => (
-                <div
-                  key={step.title}
-                  className="relative group animate-slide-up"
-                  style={{ animationDelay: `${0.1 + i * 0.15}s` }}
-                >
-                  <div className="container-hijau-pekat p-6 flex items-start gap-5 relative z-10 hover:shadow-2xl transition-all duration-300 border-white/10" style={{ background: 'rgba(255,255,255,0.03)' }}>
-                    <div
-                      className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0"
-                      style={{ background: `${step.color}25` }}
-                    >
-                      <step.icon size={24} color={step.color} strokeWidth={2.5} />
-                    </div>
-                    <div>
-                      <h3 className="text-base font-bold text-white mb-1">{step.title}</h3>
-                      <p className="text-sm text-white/60 leading-relaxed font-medium">{step.desc}</p>
-                    </div>
-                    {/* Step Number Badge */}
-                    <div className="absolute -top-3 -left-3 w-8 h-8 rounded-full bg-slate-900 border-2 border-emerald-500 text-emerald-400 flex items-center justify-center text-xs font-black shadow-lg">
-                      {i === 2 ? 4 : i === 3 ? 3 : i + 1}
-                    </div>
-                  </div>
-
-                  {/* Mobile Arrow */}
-                  {i < howItWorks.length - 1 && (
-                    <div className="md:hidden flex justify-center py-4">
-                      <ArrowDown size={20} className="text-white/20" />
-                    </div>
-                  )}
+              <div className="grid grid-cols-2 gap-6">
+                <div className="p-5 bg-slate-50 rounded-3xl border border-slate-100">
+                  <div className="text-emerald-600 font-black text-2xl mb-1">MobileNetV2</div>
+                  <div className="text-slate-400 text-[10px] font-black uppercase tracking-widest leading-none">Base Architecture</div>
                 </div>
-              ))}
+                <div className="p-5 bg-slate-50 rounded-3xl border border-slate-100">
+                  <div className="text-emerald-600 font-black text-2xl mb-1">Edge AI</div>
+                  <div className="text-slate-400 text-[10px] font-black uppercase tracking-widest leading-none">On-Device Processing</div>
+                </div>
+              </div>
             </div>
-          </div>
-
-          <div className="mt-16 flex justify-center animate-slide-up" style={{ animationDelay: '0.8s' }}>
-            <button
-              id="btn-mulai-deteksi-bottom"
-              onClick={() => navigate('/deteksi')}
-              className="btn-premium-emerald px-12 py-5 text-lg"
-            >
-              <Sparkles size={22} />
-              Coba Sekarang
-              <ArrowRight size={20} />
-            </button>
+            <div className="relative">
+              <div className="absolute inset-0 bg-emerald-500/5 blur-[100px] rounded-full"></div>
+              <div className="relative bg-white p-4 rounded-[3rem] shadow-2xl border border-slate-100 rotate-2 group hover:rotate-0 transition-transform duration-700">
+                <div className="bg-slate-900 rounded-[2.5rem] p-8 aspect-square flex flex-col justify-between overflow-hidden relative">
+                  <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'linear-gradient(#10b981 1px, transparent 1px), linear-gradient(90deg, #10b981 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
+                  <div className="relative z-10 flex justify-between items-start">
+                    <div className="w-12 h-12 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400">
+                      <Activity size={24} />
+                    </div>
+                    <div className="text-right">
+                      <div className="text-emerald-400 font-black text-xs uppercase">Live Status</div>
+                      <div className="text-white font-mono text-lg">System Active</div>
+                    </div>
+                  </div>
+                  <div className="relative z-10">
+                    <div className="h-32 w-full flex items-end gap-1">
+                      {[40, 70, 45, 90, 65, 80, 30, 60, 85, 50].map((h, i) => (
+                        <div key={i} className="flex-1 bg-emerald-500/30 rounded-t-sm animate-pulse" style={{ height: `${h}%`, animationDelay: `${i * 0.1}s` }}></div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
+
+      {/* ── Section 2: Heritage x High-Tech (Tanah Karo) ── */}
+      <section className="relative px-6 py-24 bg-slate-950 overflow-hidden group">
+        <div className="absolute inset-0 opacity-10 grayscale group-hover:grayscale-0 transition-all duration-1000 group-hover:scale-110">
+          <img src="/icons/karo.png" alt="Karo Pattern" className="w-full h-full object-cover opacity-20" />
+        </div>
+        <div className="max-w-7xl mx-auto relative z-10 py-20">
+          <div className="max-w-3xl">
+            <h2 className="text-4xl md:text-7xl font-black text-white tracking-tighter mb-8 leading-[0.85] uppercase">
+              Presisi Digital <br /><span className="text-emerald-500">Tanah Karo</span>
+            </h2>
+            <p className="text-slate-300 text-xl font-medium leading-relaxed mb-12">
+              Kami menggabungkan kearifan lokal petani Tanah Karo dengan presisi data digital.
+              AI SiDaun dilatih menggunakan ribuan sampel daun dari ladang Karo untuk memastikan
+              setiap diagnosa relevan dengan kondisi tanah dan iklim lokal.
+            </p>
+            <div className="flex flex-wrap gap-4">
+              <span className="px-6 py-3 rounded-2xl bg-white/5 border border-white/10 text-white font-black text-xs uppercase tracking-widest">Kec. Kabanjahe</span>
+              <span className="px-6 py-3 rounded-2xl bg-white/5 border border-white/10 text-white font-black text-xs uppercase tracking-widest">Kec. Berastagi</span>
+              <span className="px-6 py-3 rounded-2xl bg-white/5 border border-white/10 text-white font-black text-xs uppercase tracking-widest">Kec. Tigapanah</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Section 3: Lab Diagnostik Digital ── */}
+      <section className="relative px-6 py-24 md:py-40 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col items-center text-center mb-24">
+            <h2 className="text-4xl md:text-6xl font-black text-slate-900 tracking-tighter mb-6 uppercase leading-none">
+              Lab <span className="text-emerald-600 italic">Diagnostik</span>
+            </h2>
+            <p className="text-slate-500 max-w-xl text-lg font-bold">Database pengetahuan penyakit cabai terlengkap dalam genggaman Anda.</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[
+              { nama: 'Bercak', image: '/bercak.png', acc: '98%', color: 'emerald' },
+              { nama: 'Keriting', image: '/keriting.png', acc: '95%', color: 'amber' },
+              { nama: 'Kuning', image: '/kuning.png', acc: '94%', color: 'rose' },
+              { nama: 'Sehat', image: '/sehat.png', acc: '99%', color: 'emerald' },
+            ].map(({ nama, image, acc, color }, i) => (
+              <div key={nama} className="group p-8 rounded-[3rem] bg-slate-50 border border-slate-100 hover:bg-white hover:shadow-2xl transition-all duration-500">
+                <div className="flex justify-between items-center mb-8">
+                  <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Acc Level</div>
+                  <div className="text-emerald-600 font-black text-xs tracking-tighter">{acc}</div>
+                </div>
+                <div className="flex justify-center mb-10">
+                  <img src={image} alt={nama} className="w-24 h-24 object-contain group-hover:scale-125 transition-transform duration-700 drop-shadow-xl" />
+                </div>
+                <h3 className="text-xl font-black text-slate-900 mb-6 uppercase tracking-tight text-center">{nama}</h3>
+                <button onClick={() => navigate('/edukasi')} className="w-full py-3 rounded-2xl bg-white border border-slate-200 text-slate-800 font-black text-[10px] uppercase tracking-widest hover:bg-emerald-600 hover:text-white hover:border-emerald-600 transition-all">Analisis Modul</button>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Section 4: Transformasi 4.0 ── */}
+      <section className="px-6 py-24 md:py-40 bg-emerald-600 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full -mr-48 -mt-48 blur-3xl"></div>
+        <div className="max-w-7xl mx-auto relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+            <div className="order-2 lg:order-1">
+              <div className="bg-slate-950 p-10 rounded-[3.5rem] shadow-2xl relative overflow-hidden group">
+                <div className="flex flex-col gap-6 relative z-10">
+                  <div className="flex justify-between items-center">
+                    <h4 className="text-white font-black uppercase tracking-widest text-xs">Efisiensi Lahan</h4>
+                    <Zap size={20} className="text-emerald-400" />
+                  </div>
+                  <div className="space-y-4">
+                    <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
+                      <div className="flex justify-between text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Respon Tradisional</div>
+                      <div className="text-white font-bold italic">2-3 Hari Kerja</div>
+                    </div>
+                    <div className="p-4 rounded-2xl bg-emerald-500/20 border border-emerald-500/40">
+                      <div className="flex justify-between text-[10px] font-black text-emerald-400 uppercase tracking-widest mb-2">Respon SiDaun AI</div>
+                      <div className="text-white font-black text-xl italic">0.1 Detik Instan</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="order-1 lg:order-2 text-white">
+              <h2 className="text-4xl md:text-7xl font-black tracking-tighter mb-8 leading-[0.85] uppercase">
+                Saatnya <br />Beralih Ke <br /><span className="text-slate-950">Presisi</span>
+              </h2>
+              <p className="text-emerald-50 text-xl font-medium leading-relaxed mb-12">
+                Jangan biarkan penyakit menyebar karena lambatnya diagnosa.
+                Wujudkan pertanian yang lebih produktif, efektif, dan berbasis data bersama SiDaun.
+              </p>
+              <button
+                onClick={() => navigate('/deteksi')}
+                className="px-12 py-6 bg-white text-emerald-600 rounded-[2rem] font-black text-lg uppercase tracking-widest hover:bg-slate-900 hover:text-white transition-all shadow-xl active:scale-95 flex items-center gap-4"
+              >
+                Mulai Sekarang <ArrowRight strokeWidth={3} />
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
 
     </div>
   )

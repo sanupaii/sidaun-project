@@ -14,6 +14,7 @@ const express = require('express')
 const router = express.Router()
 const Detection = require('../models/Detection')
 const { uploadKeCloudinary } = require('../config/cloudinary')
+const { protect } = require('../middleware/authMiddleware')
 
 /**
  * POST /api/sync/bulk-detections
@@ -23,7 +24,7 @@ const { uploadKeCloudinary } = require('../config/cloudinary')
  * Jika item dengan localId yang sama sudah ada, data akan di-update (bukan duplikat baru)
  * Ini mencegah duplikasi jika terjadi kegagalan jaringan di tengah proses
  */
-router.post('/bulk-detections', async (req, res) => {
+router.post('/bulk-detections', protect, async (req, res) => {
   try {
     const { detections } = req.body
 
@@ -75,6 +76,7 @@ router.post('/bulk-detections', async (req, res) => {
           { localId }, // Filter: cari berdasarkan localId
           {
             $set: {
+              userId: req.user._id,
               diseaseType,
               confidenceScore,
               imageUrl,
@@ -144,6 +146,65 @@ router.get('/status', (req, res) => {
     timestamp: new Date().toISOString(),
     message: 'SiDaun Backend aktif dan siap menerima data.',
   })
+})
+
+/**
+ * GET /api/sync/history
+ * Ambil semua history deteksi berdasarkan userId
+ */
+router.get('/history', protect, async (req, res) => {
+  try {
+    const history = await Detection.find({ userId: req.user._id }).sort({ scannedAt: -1 })
+    res.status(200).json({ success: true, data: history })
+  } catch (error) {
+    console.error('[Sync] Error get history:', error)
+    res.status(500).json({ success: false, message: 'Server error' })
+  }
+})
+
+/**
+ * DELETE /api/sync/history/item/:timestamp
+ * Hapus satu riwayat deteksi berdasarkan waktu scan (timestamp) dengan toleransi waktu 10 detik
+ */
+router.delete('/history/item/:timestamp', protect, async (req, res) => {
+  try {
+    const timestampDate = new Date(req.params.timestamp)
+    const kelas = req.query.kelas
+    
+    // Rentang ±10 detik untuk mengatasi beda mili-detik antara local history & sync queue
+    const startDate = new Date(timestampDate.getTime() - 10000)
+    const endDate = new Date(timestampDate.getTime() + 10000)
+
+    const query = { 
+      userId: req.user._id, 
+      scannedAt: { $gte: startDate, $lte: endDate } 
+    }
+    
+    if (kelas) {
+      query.diseaseType = kelas
+    }
+
+    const deleted = await Detection.findOneAndDelete(query)
+    
+    res.status(200).json({ success: true, message: 'Item berhasil dihapus dari server.', deleted })
+  } catch (error) {
+    console.error('[Sync] Error delete item history:', error)
+    res.status(500).json({ success: false, message: 'Server error saat menghapus item' })
+  }
+})
+
+/**
+ * DELETE /api/sync/history/all
+ * Hapus semua riwayat deteksi milik pengguna ini
+ */
+router.delete('/history/all', protect, async (req, res) => {
+  try {
+    await Detection.deleteMany({ userId: req.user._id })
+    res.status(200).json({ success: true, message: 'Semua riwayat berhasil dihapus dari server.' })
+  } catch (error) {
+    console.error('[Sync] Error delete all history:', error)
+    res.status(500).json({ success: false, message: 'Server error saat menghapus semua riwayat' })
+  }
 })
 
 module.exports = router

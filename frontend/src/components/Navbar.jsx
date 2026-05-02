@@ -4,19 +4,35 @@
  * Menggunakan react-router-dom NavLink untuk routing
  */
 
-import { NavLink, useLocation } from 'react-router-dom'
-import { Home, Leaf, History, Info, BookOpen } from 'lucide-react'
+import { useState, useRef, useEffect } from 'react'
+import { NavLink, useLocation, useNavigate } from 'react-router-dom'
+import { Home, Leaf, History, Info, BookOpen, User, LogOut, LayoutDashboard } from 'lucide-react'
+import { useAuth } from '../context/AuthContext'
 
 const navItems = [
   { to: '/', label: 'Home', Icon: Home },
   { to: '/deteksi', label: 'Deteksi', Icon: Leaf },
   { to: '/edukasi', label: 'Edukasi', Icon: BookOpen },
   { to: '/riwayat', label: 'Riwayat', Icon: History },
-  { to: '/about', label: 'About', Icon: Info },
 ]
 
 function Navbar() {
   const location = useLocation()
+  const navigate = useNavigate()
+  const { user, logout } = useAuth()
+  const [showProfileMenu, setShowProfileMenu] = useState(false)
+  const menuRef = useRef(null)
+
+  // Tutup dropdown jika klik di luar
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setShowProfileMenu(false)
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
 
   return (
     <>
@@ -97,7 +113,88 @@ function Navbar() {
                 </NavLink>
               )
             })}
+            
+            {/* Auth Section - Desktop */}
+            <div className="ml-2 flex items-center border-l pl-4 border-slate-200/60 relative" ref={menuRef}>
+              {user ? (
+                <div className="relative">
+                  <button 
+                    onClick={() => setShowProfileMenu(!showProfileMenu)}
+                    className="flex items-center gap-2 bg-white/50 backdrop-blur-sm border border-emerald-100 text-emerald-700 px-4 py-2 rounded-2xl font-bold text-sm hover:bg-emerald-50 transition-all duration-300 shadow-sm active:scale-95"
+                  >
+                    <div className="w-6 h-6 rounded-lg bg-emerald-500 text-white flex items-center justify-center">
+                      <User size={14} strokeWidth={3} />
+                    </div>
+                    <span className="max-w-[120px] truncate">{user.name}</span>
+                  </button>
+                  
+                  {/* Dropdown Menu Desktop */}
+                  {showProfileMenu && (
+                    <div className="absolute right-0 mt-3 w-56 bg-white/95 backdrop-blur-xl rounded-[2rem] shadow-2xl border border-white/20 py-3 z-[60] animate-scale-in origin-top-right overflow-hidden">
+                      <div className="px-5 py-3 border-b border-slate-100/60 mb-2">
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Akun Anda</p>
+                        <p className="text-sm font-black text-slate-800 truncate">{user.name}</p>
+                        <p className="text-[11px] font-medium text-slate-500 truncate">{user.email}</p>
+                      </div>
+                      
+                      <div className="px-2 space-y-1">
+                        <NavLink 
+                          to="/lahanku" 
+                          onClick={() => setShowProfileMenu(false)}
+                          className="flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-slate-700 rounded-2xl hover:bg-emerald-50 hover:text-emerald-700 transition-colors"
+                        >
+                          <LayoutDashboard size={18} />
+                          LahanKu
+                        </NavLink>
+                        
+                        <NavLink 
+                          to="/about" 
+                          onClick={() => setShowProfileMenu(false)}
+                          className="flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-slate-700 rounded-2xl hover:bg-emerald-50 hover:text-emerald-700 transition-colors"
+                        >
+                          <Info size={18} />
+                          Tentang SiDaun
+                        </NavLink>
+
+                        <button 
+                          onClick={() => {
+                            logout();
+                            setShowProfileMenu(false);
+                            navigate('/login');
+                          }}
+                          className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-red-600 rounded-2xl hover:bg-red-50 transition-colors mt-2"
+                        >
+                          <LogOut size={18} />
+                          Logout
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="flex items-center gap-3">
+                  <NavLink to="/login" className="px-5 py-2.5 text-sm font-black text-slate-600 hover:text-emerald-600 transition-all active:scale-95">
+                    Login
+                  </NavLink>
+                  <NavLink to="/register" className="px-6 py-2.5 text-sm font-black bg-emerald-600 text-white rounded-2xl hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-200 active:scale-95">
+                    Daftar
+                  </NavLink>
+                </div>
+              )}
+            </div>
           </nav>
+          
+          {/* Auth Status - Mobile (Top Right - Optional / Badge Only) */}
+          <div className="md:hidden flex items-center gap-2">
+            {user && (
+              <div className="flex items-center gap-2 bg-emerald-100/80 backdrop-blur-sm px-3 py-1 rounded-full border border-emerald-200">
+                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="text-[10px] font-black text-emerald-800 uppercase tracking-tighter truncate max-w-[60px]">
+                  {user.name}
+                </span>
+              </div>
+            )}
+          </div>
         </div>
       </header>
 
@@ -122,7 +219,6 @@ function Navbar() {
                 to={to}
                 className="flex-1 flex flex-col items-center justify-center gap-1 py-3 transition-all duration-200 active:scale-95"
               >
-                {/* Icon pill — aktif menyala */}
                 <div
                   className="relative flex items-center justify-center rounded-full transition-all duration-300"
                   style={{
@@ -132,29 +228,55 @@ function Navbar() {
                   }}
                 >
                   <Icon
-                    size={22}
-                    strokeWidth={isActive ? 2.5 : 1.8}
-                    color={isActive ? '#10b981' : '#94a3b8'}
+                    size={20}
+                    strokeWidth={isActive ? 3 : 2}
+                    color={isActive ? '#10b981' : '#64748b'}
                   />
-                  {/* Active dot indicator */}
                   {isActive && (
                     <span
-                      className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full border-2 border-white"
+                      className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full border-2 border-white shadow-sm"
                       style={{ background: '#10b981' }}
                     />
                   )}
                 </div>
-
-                {/* Label */}
                 <span
-                  className="text-[10px] font-semibold transition-colors duration-200"
-                  style={{ color: isActive ? '#10b981' : '#94a3b8' }}
+                  className="text-[9px] font-black uppercase tracking-tighter transition-colors duration-200"
+                  style={{ color: isActive ? '#10b981' : '#64748b' }}
                 >
                   {label}
                 </span>
               </NavLink>
             )
           })}
+
+          {/* Special Tab: Akun (Mobile) */}
+          <NavLink
+            to={user ? "/lahanku" : "/login"}
+            className="flex-1 flex flex-col items-center justify-center gap-1 py-3 transition-all duration-200 active:scale-95"
+          >
+            <div
+              className={`relative flex items-center justify-center rounded-full transition-all duration-300 ${
+                (location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/lahanku') 
+                ? 'bg-emerald-500/15' : 'transparent'
+              }`}
+              style={{ width: 48, height: 32 }}
+            >
+              <User
+                size={20}
+                strokeWidth={(location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/lahanku') ? 3 : 2}
+                color={(location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/lahanku') ? '#10b981' : '#64748b'}
+              />
+              {user && (
+                <div className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-white shadow-sm" />
+              )}
+            </div>
+            <span
+              className="text-[9px] font-black uppercase tracking-tighter"
+              style={{ color: (location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/lahanku') ? '#10b981' : '#64748b' }}
+            >
+              {user ? 'Akun' : 'Masuk'}
+            </span>
+          </NavLink>
         </div>
       </nav>
     </>

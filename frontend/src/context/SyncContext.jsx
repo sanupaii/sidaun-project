@@ -11,6 +11,7 @@
 
 import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react'
 import { jalankanSync, cekJumlahPending } from '../utils/syncService'
+import { useAuth } from './AuthContext'
 
 const SyncContext = createContext({
   isOnline: true,
@@ -39,18 +40,24 @@ export function SyncProvider({ children }) {
   const [isSyncing, setIsSyncing] = useState(false)
   const [lastSyncResult, setLastSyncResult] = useState(null)
 
+  const { user, token } = useAuth()
+
   // Ref untuk mencegah multiple sync berjalan bersamaan
   const syncLockRef = useRef(false)
 
   // ─── Refresh jumlah pending ───────────────────────────────────────────
   const refreshPending = useCallback(async () => {
+    if (!user) {
+      setPendingCount(0)
+      return
+    }
     try {
-      const count = await cekJumlahPending()
+      const count = await cekJumlahPending(user._id)
       setPendingCount(count)
     } catch (err) {
       console.error('[SiDaun Sync] Gagal menghitung antrian:', err)
     }
-  }, [])
+  }, [user])
 
   // ─── Fungsi sync utama ────────────────────────────────────────────────
   const doSync = useCallback(async () => {
@@ -62,7 +69,8 @@ export function SyncProvider({ children }) {
     setLastSyncResult(null)
 
     try {
-      const result = await jalankanSync()
+      if (!token || !user) return; // Guard for sync if not logged in
+      const result = await jalankanSync(token, user._id)
       setLastSyncResult(result)
 
       // Refresh pending count setelah sync
@@ -114,10 +122,10 @@ export function SyncProvider({ children }) {
     refreshPending()
 
     // Jika sudah online dan ada pending, coba sync
-    if (navigator.onLine) {
+    if (navigator.onLine && user) {
       // Delay sedikit agar app selesai render dulu
       const timer = setTimeout(() => {
-        cekJumlahPending().then(count => {
+        cekJumlahPending(user._id).then(count => {
           if (count > 0) doSync()
         })
       }, 3000)

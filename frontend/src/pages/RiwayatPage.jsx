@@ -11,6 +11,8 @@ import { Trash2, History, Clock, AlertCircle, Leaf, RefreshCw, BookOpen, CloudUp
 import { ambilSemuaRiwayat, hapusRiwayat, hapusSemuaRiwayat, ambilSemuaAntrian, hapusDariAntrian, hapusSemuaAntrian } from '../utils/db'
 import { formatTanggal } from '../utils/imageUtils'
 import { useSync } from '../context/SyncContext'
+import { useAuth } from '../context/AuthContext'
+import { hapusRiwayatServer, hapusSemuaRiwayatServer } from '../utils/syncService'
 
 const BADGE_STYLE = {
   'Daun bercak': { bg: 'rgba(234, 88, 12, 0.1)', color: '#ea580c', border: 'rgba(234,88,12,0.35)', emoji: '🍂' },
@@ -25,24 +27,32 @@ function RiwayatPage() {
   const [loading, setLoading] = useState(true)
   const [konfirmasiHapusSemua, setKonfirmasiHapusSemua] = useState(false)
   const { pendingCount, isSyncing, isOnline, manualSync, refreshPending } = useSync()
+  const { user, token } = useAuth()
 
   /**
    * Muat riwayat dari IndexedDB saat komponen pertama di-render
-   * ⚠️ Menggunakan ambilSemuaRiwayat() dari db.js — tidak dimodifikasi
+   * Membutuhkan user login untuk melihat riwayat
    */
   const muatRiwayat = useCallback(async () => {
+    if (!user) {
+      setDaftarRiwayat([])
+      setAntreanSync([])
+      setLoading(false)
+      return
+    }
+
     setLoading(true)
     try {
-      const data = await ambilSemuaRiwayat()
+      const data = await ambilSemuaRiwayat(user._id)
       setDaftarRiwayat(data)
-      const antrean = await ambilSemuaAntrian()
+      const antrean = await ambilSemuaAntrian(user._id)
       setAntreanSync(antrean)
     } catch (err) {
       console.error('[SiDaun] Gagal memuat riwayat:', err)
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [user])
 
   useEffect(() => {
     muatRiwayat()
@@ -51,15 +61,16 @@ function RiwayatPage() {
   // Refresh antrean setiap kali pendingCount dari context berubah (misal setelah sync sukses)
   useEffect(() => {
     const fetchAntrean = async () => {
+      if (!user) return;
       try {
-        const antrean = await ambilSemuaAntrian()
+        const antrean = await ambilSemuaAntrian(user._id)
         setAntreanSync(antrean)
       } catch (err) {
         console.error('[SiDaun Sync] Gagal memuat antrean sync:', err)
       }
     }
     fetchAntrean()
-  }, [pendingCount])
+  }, [pendingCount, user])
 
   /**
    * Hapus satu item riwayat
@@ -82,11 +93,16 @@ function RiwayatPage() {
         await refreshPending() // Update angka badge di UI
       }
 
+      // 3. Hapus juga dari server jika user login
+      if (user && token) {
+        await hapusRiwayatServer(token, itemRiwayat.timestamp, itemRiwayat.kelas)
+      }
+
       setDaftarRiwayat(prev => prev.filter(item => item.id !== itemRiwayat.id))
     } catch (err) {
       console.error('[SiDaun] Gagal menghapus riwayat:', err)
     }
-  }, [antreanSync, refreshPending])
+  }, [antreanSync, refreshPending, user, token])
 
   /**
    * Hapus semua riwayat dengan konfirmasi 2-tap
@@ -103,13 +119,18 @@ function RiwayatPage() {
       await hapusSemuaAntrian()
       await refreshPending()
       
+      // Hapus semua data dari server
+      if (user && token) {
+        await hapusSemuaRiwayatServer(token)
+      }
+      
       setDaftarRiwayat([])
       setAntreanSync([])
       setKonfirmasiHapusSemua(false)
     } catch (err) {
       console.error('[SiDaun] Gagal menghapus semua riwayat:', err)
     }
-  }, [konfirmasiHapusSemua, refreshPending])
+  }, [konfirmasiHapusSemua, refreshPending, user, token])
 
   return (
     <div className="w-full max-w-6xl mx-auto px-4 py-8 pb-28 md:pb-12 flex flex-col gap-8">
@@ -209,7 +230,7 @@ function RiwayatPage() {
       )}
 
       {/* ── Empty State ── */}
-      {!loading && daftarRiwayat.length === 0 && (
+      {!loading && (!user || daftarRiwayat.length === 0) && (
         <div className="container-hijau-pekat p-12 flex flex-col items-center justify-center text-center animate-fade-in">
           <div
             className="w-24 h-24 rounded-3xl flex items-center justify-center mb-6 animate-float"
@@ -217,10 +238,20 @@ function RiwayatPage() {
           >
             <Leaf size={44} color="#10b981" strokeWidth={1.3} />
           </div>
-          <h3 className="text-lg font-black text-slate-800 mb-2">Belum Ada Riwayat</h3>
+          <h3 className="text-lg font-black text-slate-800 mb-2">
+            {!user ? 'Harap Login Dahulu' : 'Belum Ada Riwayat'}
+          </h3>
           <p className="text-sm text-slate-600 leading-relaxed max-w-xs font-medium">
-            Hasil deteksi akan otomatis tersimpan di sini setelah Anda melakukan analisis daun.
+            {!user 
+              ? 'Silakan login untuk menyimpan dan melihat riwayat deteksi daun cabai Anda.' 
+              : 'Hasil deteksi akan otomatis tersimpan di sini setelah Anda melakukan analisis daun.'}
           </p>
+          
+          {!user && (
+            <Link to="/login" className="mt-6 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-6 rounded-xl transition-colors shadow-md">
+              Login Sekarang
+            </Link>
+          )}
         </div>
       )}
 

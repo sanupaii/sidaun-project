@@ -19,7 +19,7 @@ const PORT = process.env.PORT || 5000
 // CORS: izinkan frontend mengakses API
 app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:5173',
-  methods: ['GET', 'POST'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   credentials: true,
 }))
 
@@ -44,6 +44,10 @@ app.get('/', (req, res) => {
 
 // Sync routes
 app.use('/api/sync', syncRoutes)
+
+// Auth routes
+const authRoutes = require('./routes/auth')
+app.use('/api/auth', authRoutes)
 
 // ─── Koneksi MongoDB + Start Server ─────────────────────────────────────
 

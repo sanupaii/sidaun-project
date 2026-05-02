@@ -6,6 +6,8 @@
 
 import * as tf from '@tensorflow/tfjs'
 
+import { PLANT_DATA } from '../data/plantData'
+
 // ─── Label Kelas (WAJIB berurutan sesuai index output model) ──────────────────
 const LABELS = [
   'Daun bercak',   // index 0
@@ -14,29 +16,8 @@ const LABELS = [
   'Daun sehat',    // index 3
 ]
 
-// ─── Data Rekomendasi ──────────────────────────────────────────────
-export const REKOMENDASI = {
-  'Daun bercak': {
-    penyebab: 'Infeksi jamur Cercospora capsici, sering terjadi saat kelembapan udara tinggi.',
-    penanganan: 'Gunakan fungisida berbahan aktif mankozeb. Pangkas dan buang daun yang terinfeksi jauh dari lahan agar spora tidak menyebar.',
-    warna: 'orange',
-  },
-  'Daun keriting': {
-    penyebab: 'Serangan hama (Kutu daun/Aphids, Thrips, atau Tungau) yang menghisap cairan daun.',
-    penanganan: 'Semprotkan insektisida berbahan aktif abamektin. Cabut dan musnahkan tanaman yang sudah rusak parah.',
-    warna: 'yellow',
-  },
-  'Daun kuning': {
-    penyebab: 'Infeksi Virus Gemini dari kutu kebul, atau kekurangan unsur hara makro (Nitrogen/Magnesium).',
-    penanganan: 'Berikan pupuk daun kaya Nitrogen & Magnesium. Jika positif virus gemini (kuning terang berurat), segera cabut tanaman (eradikasi).',
-    warna: 'red',
-  },
-  'Daun sehat': {
-    penyebab: 'Kondisi tanaman optimal dan terawat.',
-    penanganan: 'Pertahankan jadwal penyiraman, pemupukan, dan sanitasi lahan yang sudah berjalan.',
-    warna: 'green',
-  },
-}
+// ─── Data Rekomendasi (Mapping dari PLANT_DATA) ──────────────────────────────
+export const REKOMENDASI = PLANT_DATA
 
 let modelInstance = null
 let modelType = null

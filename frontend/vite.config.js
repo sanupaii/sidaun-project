@@ -22,7 +22,16 @@ export default defineConfig({
         // Aktifkan service worker di mode dev untuk testing
         enabled: true,
       },
-      includeAssets: ['favicon.svg', 'icons/*.png'],
+      includeAssets: [
+        'favicon.svg', 
+        'icons/*.png', 
+        'bercak.png', 
+        'keriting.png', 
+        'kuning.png', 
+        'sehat.png',
+        'bg.jpg',
+        'bg_karo.png'
+      ],
       manifest: {
         name: 'SiDaun - Deteksi Penyakit Daun Cabai',
         short_name: 'SiDaun',
@@ -55,7 +64,34 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,ico,png,jpg,jpeg,webp,svg,json,bin,wasm}'],
         runtimeCaching: [
           {
-            // Cache tambahan runtime untuk Google Fonts jika ada
+            // [BARU] Cache untuk aset gambar lokal agar tersedia offline setelah dilihat sekali
+            urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp)$/,
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'local-assets-cache',
+              expiration: {
+                maxEntries: 60,
+                maxAgeSeconds: 30 * 24 * 60 * 60, // 30 hari
+              },
+            },
+          },
+          {
+            // Cache gambar dari folder uploads backend
+            urlPattern: ({ url }) => url.origin === 'http://localhost:5000' && url.pathname.startsWith('/uploads'),
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'backend-uploads-cache',
+              expiration: {
+                maxEntries: 50,
+                maxAgeSeconds: 60 * 60 * 24 * 30, // 30 hari
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
+          {
+            // Cache Google Fonts
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
             handler: 'CacheFirst',
             options: {

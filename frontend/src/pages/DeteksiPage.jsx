@@ -5,9 +5,11 @@
  * ⚠️ LOGIKA TFJS DAN INDEXEDDB TIDAK DIUBAH SAMA SEKALI
  */
 
-import { useState, useRef, useCallback } from 'react'
-import { Camera, ImagePlus, Loader2, Leaf, Sparkles, RefreshCw, Brain } from 'lucide-react'
+import { useState, useRef, useCallback, useEffect } from 'react'
+import { Camera, ImagePlus, Loader2, Leaf, Sparkles, RefreshCw, Brain, Info, X } from 'lucide-react'
 import { v4 as uuidv4 } from 'uuid'
+import { NavLink } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 import { predict } from '../utils/model'
 import { simpanRiwayat, tambahKeAntrian } from '../utils/db'
 import { kompresGambar } from '../utils/imageUtils'
@@ -20,6 +22,8 @@ const CONFIDENCE_THRESHOLD = 0.70
 
 function DeteksiPage({ modelReady }) {
   const { refreshPending } = useSync()
+  const { user } = useAuth()
+  const [showBanner, setShowBanner] = useState(false)
   const [previewURL, setPreviewURL] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
   const [hasil, setHasil] = useState(null)
@@ -30,6 +34,8 @@ function DeteksiPage({ modelReady }) {
   const imgRef = useRef(null)
   const kameraRef = useRef(null)
   const galeriRef = useRef(null)
+
+  // Banner hanya muncul jika dipicu oleh tombol analisis
 
   /**
    * Handler saat file gambar dipilih (dari kamera atau galeri)
@@ -54,6 +60,14 @@ function DeteksiPage({ modelReady }) {
    */
   const handleAnalisis = useCallback(async () => {
     if (!imgRef.current || !modelReady) return
+
+    // Jika user belum login dan banner belum ditampilkan, tampilkan banner peringatan
+    if (!user && !showBanner) {
+      setShowBanner(true)
+      // Scroll ke atas agar banner terlihat di mobile jika sedang di bawah
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+      return
+    }
 
     setIsLoading(true)
     setError(null)
@@ -81,37 +95,42 @@ function DeteksiPage({ modelReady }) {
 
       const imageBase64 = kompresGambar(imgRef.current, 500, 0.6)
 
-      // ── Simpan ke Riwayat (existing flow — tidak diubah) ──
-      const savedId = await simpanRiwayat({
-        imageBase64,
-        kelas: prediksi.kelas,
-        akurasi: prediksi.akurasi,
-        penyebab: prediksi.penyebab,
-        penanganan: prediksi.penanganan,
-      })
-      console.log('[SiDaun] Riwayat tersimpan dengan ID:', savedId)
-      setSavedInfo(savedId)
-
-      // ── Simpan ke Sync Queue (BARU — untuk sinkronisasi ke server) ──
-      try {
-        // Konversi base64 Data URL ke File, lalu kompres untuk sync
-        const fileUntukSync = dataURLkeFile(imageBase64, `leaf-${Date.now()}.jpg`)
-        const blobTerkompresi = await kompresUntukSync(fileUntukSync)
-
-        await tambahKeAntrian({
-          localId: uuidv4(),
-          imageBlob: blobTerkompresi,
-          diseaseType: prediksi.kelas,
-          confidenceScore: prediksi.akurasi,
-          scannedAt: new Date(),
+      // ── Simpan ke Riwayat & Sync Queue jika User Login ──
+      if (user) {
+        const savedId = await simpanRiwayat({
+          imageBase64,
+          kelas: prediksi.kelas,
+          akurasi: prediksi.akurasi,
+          penyebab: prediksi.penyebab,
+          penanganan: prediksi.penanganan,
+          userId: user._id
         })
-        console.log('[SiDaun Sync] Data deteksi ditambahkan ke antrian sinkronisasi.')
+        console.log('[SiDaun] Riwayat tersimpan dengan ID:', savedId)
+        setSavedInfo(savedId)
 
-        // Refresh jumlah pending di SyncContext
-        await refreshPending()
-      } catch (syncErr) {
-        // Sync queue gagal bukan critical error — riwayat lokal tetap tersimpan
-        console.warn('[SiDaun Sync] Gagal menambah ke antrian sync (non-critical):', syncErr)
+        try {
+          // Konversi base64 Data URL ke File, lalu kompres untuk sync
+          const fileUntukSync = dataURLkeFile(imageBase64, `leaf-${Date.now()}.jpg`)
+          const blobTerkompresi = await kompresUntukSync(fileUntukSync)
+
+          await tambahKeAntrian({
+            localId: uuidv4(),
+            imageBlob: blobTerkompresi,
+            diseaseType: prediksi.kelas,
+            confidenceScore: prediksi.akurasi,
+            scannedAt: new Date(),
+            userId: user._id
+          })
+          console.log('[SiDaun Sync] Data deteksi ditambahkan ke antrian sinkronisasi.')
+
+          // Refresh jumlah pending di SyncContext
+          await refreshPending()
+        } catch (syncErr) {
+          // Sync queue gagal bukan critical error — riwayat lokal tetap tersimpan
+          console.warn('[SiDaun Sync] Gagal menambah ke antrian sync (non-critical):', syncErr)
+        }
+      } else {
+        console.log('[SiDaun] Guest Mode: Hasil deteksi tidak disimpan.')
       }
 
       setHasil({ ...prediksi, imageBase64 })
@@ -122,7 +141,7 @@ function DeteksiPage({ modelReady }) {
     } finally {
       setIsLoading(false)
     }
-  }, [modelReady])
+  }, [modelReady, user, showBanner])
 
   /**
    * Reset semua state ke kondisi awal untuk analisis baru
@@ -174,6 +193,52 @@ function DeteksiPage({ modelReady }) {
         />
         {modelReady ? 'Model AI siap digunakan' : 'Memuat model AI…'}
       </div>
+
+      {/* ── Guest Mode Modal (Centered) ── */}
+      {!user && showBanner && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/30 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white border border-amber-100 rounded-[2.5rem] p-8 max-w-md w-full shadow-[0_20px_50px_rgba(0,0,0,0.15)] animate-scale-in flex flex-col items-center text-center gap-6 relative">
+            <button 
+              onClick={() => setShowBanner(false)}
+              className="absolute top-6 right-6 text-slate-400 hover:text-slate-600 transition-colors"
+            >
+              <X size={20} />
+            </button>
+
+            <div className="w-20 h-20 rounded-[2rem] bg-amber-50 flex items-center justify-center text-amber-500 shadow-inner">
+              <Info size={40} strokeWidth={2.5} />
+            </div>
+
+            <div>
+              <h3 className="text-xl font-black text-slate-900 mb-2">Gunakan Mode Guest?</h3>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                Anda sedang menggunakan aplikasi sebagai tamu. <span className="font-bold text-amber-600">Hasil analisis ini tidak akan disimpan</span> ke riwayat akun Anda.
+              </p>
+            </div>
+
+            <div className="flex flex-col w-full gap-3 mt-2">
+              <button 
+                onClick={() => {
+                  setShowBanner(false)
+                  handleAnalisis()
+                }}
+                className="w-full py-4 rounded-2xl font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-200 active:scale-[0.98]"
+              >
+                Tetap Lanjut
+              </button>
+              
+              <div className="grid grid-cols-2 gap-3">
+                <NavLink to="/login" className="py-3.5 rounded-2xl font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 transition-colors text-center text-sm">
+                  Login
+                </NavLink>
+                <NavLink to="/register" className="py-3.5 rounded-2xl font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 transition-colors text-center text-sm">
+                  Daftar
+                </NavLink>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Main Grid: 2 kolom Desktop, 1 kolom Mobile ── */}
       {/* items-start: biarkan kolom setinggi kontennya — syarat wajib agar sticky bekerja */}

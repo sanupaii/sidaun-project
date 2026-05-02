@@ -10,6 +10,7 @@ backend/node_modules/
 frontend/.env
 frontend/.env.local
 backend/.env
+plant.txt
 
 # Build outputs
 frontend/dist/

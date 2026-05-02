@@ -8,6 +8,12 @@ const mongoose = require('mongoose')
 
 const detectionSchema = new mongoose.Schema(
   {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
+
     // [KRUSIAL] localId sebagai unique identifier dari frontend
     // Digunakan untuk upsert agar tidak ada duplikasi data
     localId: {

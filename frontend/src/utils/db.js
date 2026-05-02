@@ -21,6 +21,12 @@ db.version(2).stores({
   syncQueue: 'localId, scannedAt',
 })
 
+// Versi 3: Tambah userId untuk multi-user offline support
+db.version(3).stores({
+  riwayat: '++id, timestamp, kelas, userId',
+  syncQueue: 'localId, scannedAt, userId',
+})
+
 // ═══════════════════════════════════════════════════════════════════════
 // FUNGSI RIWAYAT (EXISTING — TIDAK DIUBAH)
 // ═══════════════════════════════════════════════════════════════════════
@@ -28,7 +34,7 @@ db.version(2).stores({
 /**
  * Simpan hasil deteksi ke IndexedDB
  */
-export async function simpanRiwayat({ imageBase64, kelas, akurasi, penyebab, penanganan }) {
+export async function simpanRiwayat({ imageBase64, kelas, akurasi, penyebab, penanganan, userId }) {
   return await db.riwayat.add({
     timestamp: new Date().toISOString(),
     imageBase64,
@@ -36,13 +42,17 @@ export async function simpanRiwayat({ imageBase64, kelas, akurasi, penyebab, pen
     akurasi,
     penyebab,
     penanganan,
+    userId, // Simpan userId
   })
 }
 
 /**
- * Ambil semua riwayat, diurutkan dari terbaru
+ * Ambil semua riwayat berdasarkan userId, diurutkan dari terbaru
  */
-export async function ambilSemuaRiwayat() {
+export async function ambilSemuaRiwayat(userId) {
+  if (userId) {
+    return await db.riwayat.where('userId').equals(userId).reverse().toArray()
+  }
   return await db.riwayat.orderBy('id').reverse().toArray()
 }
 
@@ -74,22 +84,27 @@ export async function hapusSemuaRiwayat() {
  * @param {string} payload.diseaseType - Jenis penyakit (nama kelas)
  * @param {number} payload.confidenceScore - Skor keyakinan model (0-1)
  * @param {Date} payload.scannedAt - Waktu deteksi dilakukan
+ * @param {string} payload.userId - ID Pengguna
  */
-export async function tambahKeAntrian({ localId, imageBlob, diseaseType, confidenceScore, scannedAt }) {
+export async function tambahKeAntrian({ localId, imageBlob, diseaseType, confidenceScore, scannedAt, userId }) {
   return await db.syncQueue.put({
     localId,
     imageBlob,
     diseaseType,
     confidenceScore,
     scannedAt: scannedAt.toISOString(),
+    userId, // Simpan userId
   })
 }
 
 /**
- * Ambil semua data di antrian sinkronisasi
+ * Ambil semua data di antrian sinkronisasi (bisa difilter per user jika perlu)
  * @returns {Promise<Array>} Array data yang belum tersinkronisasi
  */
-export async function ambilSemuaAntrian() {
+export async function ambilSemuaAntrian(userId) {
+  if (userId) {
+    return await db.syncQueue.where('userId').equals(userId).toArray()
+  }
   return await db.syncQueue.toArray()
 }
 
@@ -106,7 +121,10 @@ export async function hapusDariAntrian(localId) {
  * Hitung jumlah item di antrian (untuk badge notifikasi)
  * @returns {Promise<number>} Jumlah item pending
  */
-export async function hitungAntrian() {
+export async function hitungAntrian(userId) {
+  if (userId) {
+    return await db.syncQueue.where('userId').equals(userId).count()
+  }
   return await db.syncQueue.count()
 }
 
