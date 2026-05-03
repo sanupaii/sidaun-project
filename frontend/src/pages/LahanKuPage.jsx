@@ -1,11 +1,14 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts'
 import { useAuth } from '../context/AuthContext'
 import { ambilSemuaRiwayat } from '../utils/db'
-import { LayoutDashboard, Activity, AlertTriangle, ScanLine, User, LogOut, TrendingUp, ShieldCheck, Calendar, MapPin } from 'lucide-react'
+import { LayoutDashboard, Activity, AlertTriangle, ScanLine, User, LogOut, TrendingUp, ShieldCheck, Calendar, MapPin, Download, Loader2, FileText, Thermometer, Droplets } from 'lucide-react'
 import LocationPicker from '../components/LocationPicker'
 import WeatherWidget from '../components/WeatherWidget'
+import { fetchWeather } from '../utils/weatherApi'
+import jsPDF from 'jspdf'
+import { toPng } from 'html-to-image'
 
 export default function LahanKuPage() {
   const { user, loading: authLoading, logout, updateLocation } = useAuth()
@@ -13,6 +16,52 @@ export default function LahanKuPage() {
   const [history, setHistory] = useState([])
   const [loading, setLoading] = useState(true)
   const [showLocationPicker, setShowLocationPicker] = useState(false)
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false)
+  const [pdfWeather, setPdfWeather] = useState({ temp: '--', humidity: '--' })
+  const reportRef = useRef(null)
+
+  const downloadLaporanPDF = async () => {
+    if (!reportRef.current) return;
+    setIsGeneratingPDF(true);
+    
+    try {
+      if (user.location?.lat && user.location?.lng) {
+        const weatherData = await fetchWeather(user.location.lat, user.location.lng);
+        if (weatherData) {
+          setPdfWeather({ 
+            temp: Math.round(weatherData.main.temp), 
+            humidity: weatherData.main.humidity 
+          });
+        }
+      }
+
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      const imgData = await toPng(reportRef.current, {
+        pixelRatio: 2,
+        backgroundColor: '#f8fafc',
+        style: {
+          transform: 'scale(1)',
+          transformOrigin: 'top left',
+          width: reportRef.current.offsetWidth + 'px',
+          height: reportRef.current.offsetHeight + 'px'
+        }
+      });
+      
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const aspect = reportRef.current.offsetHeight / reportRef.current.offsetWidth;
+      const pdfHeight = pdfWidth * aspect;
+      
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      pdf.save(`Laporan_LahanKu_${user.name.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`);
+    } catch (error) {
+      console.error("Gagal men-generate PDF", error);
+      alert("Terjadi kesalahan saat mengunduh laporan PDF.");
+    } finally {
+      setIsGeneratingPDF(false);
+    }
+  }
 
   const handleSaveLocation = async (lat, lng, address) => {
     const result = await updateLocation(lat, lng, address)
@@ -52,7 +101,7 @@ export default function LahanKuPage() {
 
   // --- Kalkulasi Data Dashboard ---
   const totalScans = history.length
-  
+
   const chartCategories = [
     { key: 'Daun sehat', name: 'KONDISI SEHAT', color: '#10b981' },
     { key: 'Daun bercak', name: 'BERCAK DAUN', color: '#f59e0b' },
@@ -140,9 +189,9 @@ export default function LahanKuPage() {
       </div>
 
       {/* ── Weather & Location Section ── */}
-      <WeatherWidget 
-        location={user.location} 
-        onEditLocation={() => setShowLocationPicker(true)} 
+      <WeatherWidget
+        location={user.location}
+        onEditLocation={() => setShowLocationPicker(true)}
       />
 
       {/* ── Stats Overview Grid ── */}
@@ -180,16 +229,25 @@ export default function LahanKuPage() {
           </div>
         </div>
 
-        {/* Quick Action Card */}
+        {/* Laporan PDF Card */}
         <div className="bg-gradient-to-br from-slate-800 to-slate-950 p-8 rounded-[2.5rem] shadow-2xl shadow-slate-200 text-white flex flex-col justify-center relative overflow-hidden group">
           <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/10 rounded-full -mr-12 -mt-12 group-hover:scale-150 transition-transform duration-700" />
-          <p className="text-emerald-400 font-black text-xs uppercase tracking-[0.2em] mb-4">Siap Membantu</p>
-          <h4 className="text-xl font-black leading-tight mb-6">Ambil Foto Daun &<br />Cek Kesehatan Sekarang</h4>
+          <p className="text-emerald-400 font-black text-xs uppercase tracking-[0.2em] mb-4">Dokumen Analisis</p>
+          <h4 className="text-xl font-black leading-tight mb-6">Unduh Rangkuman<br />Kesehatan Lahan</h4>
           <button
-            onClick={() => navigate('/deteksi')}
-            className="w-full py-4 bg-emerald-500 hover:bg-emerald-400 text-white rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-lg shadow-emerald-500/30 flex items-center justify-center gap-2 active:scale-95"
+            onClick={downloadLaporanPDF}
+            disabled={isGeneratingPDF || totalScans === 0}
+            className={`w-full py-4 bg-emerald-500 text-white rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-lg flex items-center justify-center gap-2 active:scale-95 ${
+              isGeneratingPDF || totalScans === 0 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-emerald-400 shadow-emerald-500/30'
+            }`}
           >
-            Mulai Deteksi <ScanLine size={16} />
+            {isGeneratingPDF ? (
+              <><Loader2 size={16} className="animate-spin" /> Menyusun Laporan...</>
+            ) : totalScans === 0 ? (
+              <><FileText size={16} /> Belum Ada Data</>
+            ) : (
+              <><Download size={16} /> Download PDF</>
+            )}
           </button>
         </div>
 
@@ -245,19 +303,19 @@ export default function LahanKuPage() {
 
               {/* Legend Detail Custom */}
               <div className="flex-1 w-full grid grid-cols-1 gap-3">
-                 {healthData.map((item, idx) => (
-                    <div key={idx} className="p-5 rounded-2xl bg-white border-2 border-slate-100 flex items-center justify-between hover:border-slate-900 transition-all group">
-                       <div className="flex items-center gap-4">
-                          <div className="w-4 h-4 rounded-full shadow-sm" style={{ backgroundColor: item.color }} />
-                          <span className="text-[11px] font-black text-slate-700 uppercase tracking-widest">{item.name}</span>
-                       </div>
-                       <div className="text-xl font-black text-slate-900">{item.value} <span className="text-[9px] text-slate-400 uppercase tracking-tighter">Kasus</span></div>
+                {healthData.map((item, idx) => (
+                  <div key={idx} className="p-5 rounded-2xl bg-white border-2 border-slate-100 flex items-center justify-between hover:border-slate-900 transition-all group">
+                    <div className="flex items-center gap-4">
+                      <div className="w-4 h-4 rounded-full shadow-sm" style={{ backgroundColor: item.color }} />
+                      <span className="text-[11px] font-black text-slate-700 uppercase tracking-widest">{item.name}</span>
                     </div>
-                 ))}
-                 <div className="mt-2 p-6 rounded-3xl bg-emerald-950 text-white flex items-center justify-between shadow-xl shadow-emerald-900/20">
-                    <span className="text-[10px] font-black uppercase tracking-[0.3em]">Rasio Kesehatan</span>
-                    <span className="text-3xl font-black">{healthRate}%</span>
-                 </div>
+                    <div className="text-xl font-black text-slate-900">{item.value} <span className="text-[9px] text-slate-400 uppercase tracking-tighter">Kasus</span></div>
+                  </div>
+                ))}
+                <div className="mt-2 p-6 rounded-3xl bg-emerald-950 text-white flex items-center justify-between shadow-xl shadow-emerald-900/20">
+                  <span className="text-[10px] font-black uppercase tracking-[0.3em]">Rasio Kesehatan</span>
+                  <span className="text-3xl font-black">{healthRate}%</span>
+                </div>
               </div>
             </div>
 
@@ -272,8 +330,157 @@ export default function LahanKuPage() {
         </div>
 
       </div>
-      <LocationPicker 
-        isOpen={showLocationPicker} 
+      {/* ── Hidden Report Layout (For PDF Generation) ── */}
+      <div style={{ position: 'absolute', left: '-9999px', top: '-9999px' }}>
+        <div 
+          ref={reportRef} 
+          className="bg-slate-50 text-slate-900 p-12 flex flex-col gap-8 relative overflow-hidden" 
+          style={{ width: '210mm', minHeight: '297mm', boxSizing: 'border-box' }}
+        >
+          {/* Header */}
+          <div className="flex items-center justify-between border-b-2 border-emerald-100 pb-6">
+             <div className="flex items-center gap-4">
+                <img src="/icons/icon-192.png" alt="SiDaun Logo" className="w-16 h-16 rounded-2xl shadow-sm bg-white p-1" crossOrigin="anonymous" />
+                <div>
+                   <h1 className="text-3xl font-black text-slate-900 tracking-tight">SiDaun</h1>
+                   <p className="text-emerald-700 font-bold">Laporan Kesehatan Lahan AI</p>
+                </div>
+             </div>
+             <div className="text-right">
+                <p className="text-sm font-bold text-slate-500">{new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                <p className="text-sm font-black text-slate-800 mt-1">{user.name}</p>
+                <p className="text-xs text-slate-500">{user.email}</p>
+             </div>
+          </div>
+
+          {/* Ringkasan & Cuaca */}
+          <div className="grid grid-cols-2 gap-6">
+             <div className="bg-white p-6 rounded-3xl border-2 border-slate-200">
+                <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-4">Status Kumulatif</h3>
+                <div className="flex items-center gap-4 mb-4">
+                   <div className={`w-12 h-12 rounded-xl ${healthStatus.bg} flex items-center justify-center ${healthStatus.color}`}>
+                      {healthStatus.icon}
+                   </div>
+                   <div>
+                      <p className="text-2xl font-black text-slate-900">{healthRate}%</p>
+                      <p className={`text-sm font-bold ${healthStatus.color}`}>{healthStatus.label}</p>
+                   </div>
+                </div>
+                <div className="flex items-center gap-4 border-t border-slate-100 pt-4">
+                   <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-slate-500">
+                      <ScanLine size={20} />
+                   </div>
+                   <div>
+                      <p className="text-xl font-black text-slate-900">{totalScans}</p>
+                      <p className="text-xs font-bold text-slate-500">Total Analisis Daun</p>
+                   </div>
+                </div>
+             </div>
+
+             <div className="bg-white p-6 rounded-3xl border-2 border-slate-200">
+                <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-4">Informasi Cuaca Lahan</h3>
+                <div className="flex items-center gap-3 mb-2">
+                   <MapPin size={16} className="text-emerald-600" />
+                   <p className="text-sm font-bold text-slate-700 line-clamp-2">{user.location?.address || 'Lokasi belum diatur'}</p>
+                </div>
+                <div className="mt-4 flex gap-4">
+                   <div className="bg-blue-50 p-3 rounded-xl flex-1 text-center">
+                      <div className="flex justify-center mb-1"><Thermometer size={16} className="text-blue-500"/></div>
+                      <p className="text-[10px] font-black text-blue-500 uppercase">Suhu</p>
+                      <p className="text-lg font-black text-blue-900">{pdfWeather.temp}°C</p>
+                   </div>
+                   <div className="bg-emerald-50 p-3 rounded-xl flex-1 text-center">
+                      <div className="flex justify-center mb-1"><Droplets size={16} className="text-emerald-500"/></div>
+                      <p className="text-[10px] font-black text-emerald-500 uppercase">Kelembapan</p>
+                      <p className="text-lg font-black text-emerald-900">{pdfWeather.humidity}%</p>
+                   </div>
+                </div>
+             </div>
+          </div>
+
+          {/* Diagram Lingkaran */}
+          <div className="bg-white p-6 rounded-3xl border-2 border-slate-200">
+             <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-6">Distribusi Kondisi Daun</h3>
+             {totalScans > 0 ? (
+                <div className="flex items-center gap-8">
+                   <div className="w-[200px] h-[200px]">
+                      <ResponsiveContainer width="100%" height="100%">
+                         <PieChart>
+                            <Pie
+                               data={healthData}
+                               cx="50%"
+                               cy="50%"
+                               innerRadius={50}
+                               outerRadius={80}
+                               paddingAngle={5}
+                               dataKey="value"
+                               stroke="#ffffff"
+                               strokeWidth={2}
+                               isAnimationActive={false}
+                            >
+                               {healthData.map((entry, index) => (
+                                  <Cell key={`cell-${index}`} fill={entry.color} />
+                               ))}
+                            </Pie>
+                         </PieChart>
+                      </ResponsiveContainer>
+                   </div>
+                   <div className="flex-1 grid grid-cols-2 gap-4">
+                      {healthData.map((item, idx) => (
+                         <div key={idx} className="flex items-center gap-3">
+                            <div className="w-4 h-4 rounded-full" style={{ backgroundColor: item.color }} />
+                            <div>
+                               <p className="text-xs font-black text-slate-700 uppercase">{item.name}</p>
+                               <p className="text-lg font-black text-slate-900">{item.value} <span className="text-xs font-bold text-slate-500">Kasus</span></p>
+                            </div>
+                         </div>
+                      ))}
+                   </div>
+                </div>
+             ) : (
+                <div className="py-10 text-center text-slate-500 font-bold">Belum ada data analisis.</div>
+             )}
+          </div>
+
+          {/* Foto Terbaru */}
+          <div className="bg-white p-6 rounded-3xl border-2 border-slate-200 flex-1">
+             <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-6">4 Riwayat Temuan Terakhir</h3>
+             {history.length > 0 ? (
+                <div className="grid grid-cols-2 gap-4">
+                   {history.slice(0, 4).map((item, idx) => (
+                      <div key={idx} className="flex gap-4 p-3 border border-slate-100 rounded-2xl bg-slate-50 items-center">
+                         {item.imageBase64 && (
+                           <img src={item.imageBase64} alt={item.kelas} className="w-20 h-20 object-cover rounded-xl shadow-sm" crossOrigin="anonymous" />
+                         )}
+                         <div>
+                            <p className="text-xs font-black text-slate-500 mb-1">{new Date(item.timestamp).toLocaleDateString('id-ID')}</p>
+                            <p className="text-sm font-black text-slate-900 leading-tight">{item.kelas}</p>
+                            <p className="text-xs font-bold text-emerald-600 mt-1">Akurasi: {item.akurasi ? `${(item.akurasi * 100).toFixed(1)}%` : '-'}</p>
+                         </div>
+                      </div>
+                   ))}
+                </div>
+             ) : (
+                <div className="py-10 text-center text-slate-500 font-bold">Belum ada riwayat gambar.</div>
+             )}
+          </div>
+          
+          <div className="mt-auto pt-6 border-t-2 border-emerald-100 flex items-center justify-between">
+             <div className="flex items-center gap-3">
+                <img src="/icons/icon-192.png" alt="SiDaun Logo" className="w-8 h-8 rounded-lg" crossOrigin="anonymous" />
+                <div>
+                  <p className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Sistem Deteksi Penyakit Daun Cabai (SiDaun)</p>
+                  <p className="text-[9px] font-bold text-slate-500">Dicetak melalui Aplikasi SiDaun - Analisis AI Canggih & Akurat</p>
+                </div>
+             </div>
+             <div className="text-right">
+                <p className="text-[9px] font-bold text-slate-400 italic">Dokumen ini sah dan di-generate otomatis.</p>
+             </div>
+          </div>
+        </div>
+      </div>
+      <LocationPicker
+        isOpen={showLocationPicker}
         onClose={() => setShowLocationPicker(false)}
         onSave={handleSaveLocation}
         initialLocation={user.location}

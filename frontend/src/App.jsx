@@ -27,6 +27,7 @@ import Footer from './components/Footer'
 import ScrollToTop from './components/ScrollToTop'
 import MeshBackground from './components/MeshBackground'
 import SyncStatusBar from './components/SyncStatusBar'
+import DaunAIChatbot from './components/DaunAIChatbot'
 
 // Context
 import { SyncProvider } from './context/SyncContext'
@@ -157,6 +158,9 @@ function App() {
 
         {/* ── Padding for Mobile Nav ── */}
         <div className="h-20 md:hidden" />
+
+        {/* ── DaunAI Chatbot (Global) ── */}
+        <DaunAIChatbot />
 
         {/* ── Vercel Speed Insights ── */}
         <SpeedInsights />

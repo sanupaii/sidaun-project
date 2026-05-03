@@ -10,6 +10,7 @@ const mongoose = require('mongoose')
 const cors = require('cors')
 
 const syncRoutes = require('./routes/sync')
+const chatRoutes = require('./routes/chat')
 
 const app = express()
 const PORT = process.env.PORT || 5000
@@ -44,6 +45,9 @@ app.get('/', (req, res) => {
 
 // Sync routes
 app.use('/api/sync', syncRoutes)
+
+// Chat routes
+app.use('/api/chat', chatRoutes)
 
 // Auth routes
 const authRoutes = require('./routes/auth')

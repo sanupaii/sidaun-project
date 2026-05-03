@@ -1,67 +1,19 @@
-1. Daun Bercak (Bercak Daun)
-Nama Penyakit: Bercak Daun (Cercospora Leaf Spot).
+Saya ingin menambahkan fitur "Download Laporan Analisis" dalam bentuk PDF di halaman LahanKuPage.jsx.  
 
-Deskripsi Penyakit: Munculnya bercak-bercak kecil berbentuk bulat pada daun. Bercak ini biasanya memiliki pusat berwarna pucat (abu-abu atau putih) dengan tepi berwarna cokelat tua atau kemerahan. Jika parah, daun akan menguning dan rontok sebelum waktunya.
+Tujuan Fitur:
+Memungkinkan petani mengunduh rangkuman kesehatan lahan mereka (berdasarkan data klasifikasi,diagram lingkaran dan cuaca) 
+untuk dikirim ke penyuluh pertanian via WhatsApp atau ditunjukkan saat konsultasi.
 
-Penyebab: Infeksi jamur Cercospora capsici. Jamur ini sangat cepat berkembang biak pada kondisi lingkungan dengan kelembapan tinggi, musim hujan, dan jarak tanam yang terlalu rapat.
+Spesifikasi Detail:
+Library: Gunakan jspdf dan library lainnya yang mungkin dibutuhkan untuk fitur ini
 
-Penanganan: Segera pangkas dan kumpulkan daun yang terinfeksi agar spora jamur tidak menyebar tertiup angin atau percikan air.
+Struktur PDF sertakan data yang ada di halaman lahanku baik itu data penyakit cuaca suhu, kelembapan, diagram lingkaran, 
+gambar daun yang terdeteksi penyakit dll yang menampilkan kondisi lahan 
+buat sebagus mungkin dan tampilan nya menggambarkan ai canggih dan informatif yang mudah dipahami 
+oleh petani atau penyuluh pertanian.
 
-Langkah Selanjutnya:
 
-Rekomendasi Obat: Aplikasikan fungisida berbahan aktif Mankozeb, Difenokonazol, atau Propineb.
-
-Cara Pencegahan: Atur jarak tanam agar sirkulasi udara antar tanaman berjalan lancar. Kurangi kelembapan tanah dengan memperbaiki drainase bedengan, dan semprotkan fungisida kontak secara preventif sebelum infeksi meluas.
-
-Tindakan Selanjutnya: Musnahkan (bakar) daun yang sudah dipangkas jauh dari area lahan. Jangan biarkan daun yang sakit membusuk di tanah sekitar tanaman.
-
-2. Daun Keriting (Keriting Daun)
-Nama Penyakit: Keriting Daun (Infeksi Hama / Thrips, Tungau, Aphids).
-
-Deskripsi Penyakit: Bentuk daun berubah menjadi tidak normal; tepian daun melengkung ke atas atau ke bawah. Tekstur daun terasa kaku, menyempit, berkerut, dan pertumbuhan pucuk tanaman menjadi kerdil atau terhambat.
-
-Penyebab: Serangan hama vektor pemakan cairan tanaman seperti Thrips, Kutu Daun (Aphids), atau Tungau. Serangan hama ini juga sering menjadi pintu masuk bagi infeksi virus.
-
-Penanganan: Lakukan sanitasi gulma di sekitar area lahan karena gulma sering menjadi sarang persembunyian hama kutu.
-
-Langkah Selanjutnya:
-
-Rekomendasi Obat: Gunakan insektisida atau akarisida berbahan aktif Abamektin, Imidakloprid, atau Klorfenapir. Pastikan penyemprotan diarahkan ke bagian bawah daun.
-
-Cara Pencegahan: Gunakan mulsa plastik perak-hitam di bedengan karena pantulan cahayanya efektif mengusir hama seperti Thrips dan Kutu Kebul.
-
-Tindakan Selanjutnya: Lakukan rotasi bahan aktif pestisida setiap 2-3 kali aplikasi agar hama tidak menjadi kebal (resisten). Pantau terus pertumbuhan pucuk baru; jika pucuk baru tumbuh normal, penanganan berhasil.
-
-3. Daun Kuning (Virus Kuning / Bule)
-Nama Penyakit: Virus Kuning (Bule / Gemini Virus) atau Defisiensi Hara.
-
-Deskripsi Penyakit: Tulang daun menebal dan seluruh helaian daun mengalami klorosis (menguning). Warna kuning biasanya bercorak belang-belang yang mencolok. Tanaman cenderung berhenti tumbuh produktif.
-
-Penyebab: Infeksi patogen Begomovirus (Virus Gemini) yang ditularkan oleh gigitan serangga Kutu Kebul (Bemisia tabaci). Kemungkinan kedua yang lebih ringan adalah defisiensi unsur hara makro (seperti Nitrogen atau Magnesium), di mana kuningnya lebih merata.
-
-Penanganan: Jika kuning merata mulai dari daun tua, ini adalah defisiensi hara; segera berikan pupuk susulan. Namun, jika kuningnya belang dan pucuknya mengkerut (indikasi virus), cabut tanaman (eradikasi) secepatnya.
-
-Langkah Selanjutnya:
-
-Rekomendasi Obat: Untuk virus, tidak ada obat kimia yang bisa menyembuhkannya. Fokus obati hama pembawanya menggunakan insektisida berbahan aktif Tiametoksam atau Pimetrozin. Untuk defisiensi hara, gunakan pupuk NPK dan pupuk mikro daun.
-
-Cara Pencegahan: Basmi Kutu Kebul sejak masa persemaian. Cabut rumput liar di sekitar lahan yang bisa menjadi inang alternatif virus.
-
-Tindakan Selanjutnya: Tanaman yang dicabut akibat virus wajib dibakar atau dibuang jauh dari blok lahan untuk memutus mata rantai penyebaran.
-
-4. Daun Sehat
-Nama Penyakit: Normal (Tidak ada penyakit).
-
-Deskripsi Penyakit: Permukaan daun berwarna hijau cerah hingga hijau tua secara merata. Tulang daun terlihat jelas, tekstur daun lentur, melebar sempurna, tanpa adanya bercak, lubang, maupun lekukan abnormal.
-
-Penyebab: Manajemen lahan berjalan dengan sangat baik, ketersediaan nutrisi dan air optimal, serta tidak ada serangan patogen atau hama yang menembus ambang batas toleransi tanaman.
-
-Penanganan: Tidak memerlukan tindakan kuratif (pengobatan).
-
-Langkah Selanjutnya:
-
-Rekomendasi Obat: Cukup berikan pupuk organik cair (POC) atau pupuk daun yang mengandung asam amino dan kalsium untuk menjaga imunitas dan dinding sel tanaman. Pestisida organik (misal ekstrak mimba) bisa diaplikasikan sebagai tameng pelindung.
-
-Cara Pencegahan: Lakukan penyiraman dengan konsisten dan pertahankan jadwal pemupukan rutin sesuai usia tanam.
-
-Tindakan Selanjutnya: Jadikan kondisi daun sehat di blok ini sebagai baseline (standar dasar) kesehatan untuk memantau blok-blok lahan lainnya. Terus lakukan pemantauan visual minimal tiga hari sekali.
+Gaya UI (Frontend):
+Buat fungsi downloadLaporanPDF di dalam LahanKuPage.jsx.
+ganti kotak yang berisi Ambil foto daun & cek kesehatan lahan lalu ada tombol untuk mulai deteksi 
+ganti itu dengan tombol untuk download laporan analisis pdf.
